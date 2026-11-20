@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Leonida Postcard — Vice City Cover Studio</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark">LP</span>
+    <div class="brand-text">
+      <h1>LEONIDA POSTCARD</h1>
+      <p>Vice City cover studio — your holiday snaps, mailed from the neon shore</p>
+    </div>
+  </div>
+  <div class="topbar-actions">
+    <button id="undoBtn" type="button" title="Undo (Ctrl+Z)">&#8630; Undo</button>
+    <button id="redoBtn" type="button" title="Redo (Ctrl+Shift+Z)">&#8631; Redo</button>
+  </div>
+</header>
+
+<main class="workspace">
+  <section class="stage-wrap">
+    <div id="stage" class="stage">
+      <canvas id="coverCanvas" width="1920" height="1080"></canvas>
+      <div id="dropHint" class="drop-hint">Drop photos anywhere to add them</div>
+    </div>
+    <p class="stage-note">Click a panel to select it, drag inside it to reposition the photo, scroll over it to zoom. Photos are read on this machine only — nothing is uploaded.</p>
+  </section>
+
+  <aside class="panel">
+    <section class="group">
+      <h2>Photos</h2>
+      <div id="photoStrip" class="photo-strip"></div>
+      <label class="upload-btn">
+        + Add your photos
+        <input id="fileInput" type="file" accept="image/*" multiple hidden>
+      </label>
+    </section>
+
+    <section class="group">
+      <h2>Layout</h2>
+      <div id="layoutBar" class="btn-grid"></div>
+    </section>
+
+    <section class="group">
+      <h2>Colour grade</h2>
+      <div id="gradeBar" class="btn-grid"></div>
+    </section>
+
+    <section class="group">
+      <h2>Selected panel</h2>
+      <label class="field">Photo
+        <select id="panelPhoto"></select>
+      </label>
+      <label class="field">Zoom
+        <input id="panelZoom" type="range" min="1" max="3" step="0.01" value="1.05">
+      </label>
+      <label class="field">Shift across
+        <input id="panelX" type="range" min="0" max="1" step="0.01" value="0.5">
+      </label>
+      <label class="field">Shift down
+        <input id="panelY" type="range" min="0.4" max="2.6" step="0.01" value="1.1">
+      </label>
+    </section>
+
+    <section class="group">
+      <h2>Lettering</h2>
+      <label class="field">Cover title
+        <input id="captionInput" type="text" maxlength="26" value="NEON SHORE">
+      </label>
+      <div class="preset-row" id="presetRow"></div>
+      <label class="field">Script subtitle
+        <input id="subtitleInput" type="text" maxlength="34" value="wish you were here">
+      </label>
+      <label class="field">Stamp headline
+        <input id="stampTitleInput" type="text" maxlength="16" value="LEONIDA 25¢">
+      </label>
+      <label class="field">Postmark place
+        <input id="postmarkInput" type="text" maxlength="16" value="VICE CITY">
+      </label>
+    </section>
+
+    <section class="group">
+      <h2>Postcard dressing</h2>
+      <div class="heat-row">
+        <span>Heat meter</span>
+        <div id="heatStars" class="heat-stars" role="radiogroup" aria-label="Heat meter"></div>
+      </div>
+      <label class="check"><input id="grainToggle" type="checkbox" checked> Film grain</label>
+      <label class="check"><input id="vignetteToggle" type="checkbox" checked> Vignette</label>
+      <label class="check"><input id="halftoneToggle" type="checkbox" checked> Halftone title block</label>
+      <label class="check"><input id="ribbonToggle" type="checkbox" checked> Greetings ribbon</label>
+    </section>
+
+    <section class="group">
+      <h2>Export PNG</h2>
+      <div id="sizeBar" class="btn-grid"></div>
+      <button id="exportBtn" class="export-btn" type="button">Download cover PNG</button>
+    </section>
+  </aside>
+</main>
+
+<footer class="foot">
+  <p>Leonida Postcard is an original fan-made cover studio. Lettering: Anton &amp; Pacifico (SIL Open Font License, see app/fonts/OFL.txt). Sample photos were made with an image model and are free to use.</p>
+</footer>
+
+<script type="module" src="src/app.js"></script>
+</body>
+</html>
