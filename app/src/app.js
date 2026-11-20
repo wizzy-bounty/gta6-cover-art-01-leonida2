@@ -67,7 +67,7 @@ function defaultPanels() {
     { x: 0.50, y: 1.45, zoom: 1.05 },
     { x: 0.36, y: 1.20, zoom: 1.12 },
     { x: 0.62, y: 1.55, zoom: 1.05 },
-    { x: 0.44, y: 1.15, zoom: 1.18 },
+    { x: 0.44, y: 1.30, zoom: 1.18 },
     { x: 0.55, y: 1.40, zoom: 1.08 },
     { x: 0.30, y: 1.30, zoom: 1.05 },
     { x: 0.66, y: 1.25, zoom: 1.14 },
@@ -708,7 +708,7 @@ function panelBorder(ctx, rect, W) {
 
 // The pop-out hero: the hero panel's picture redrawn scaled past its frame
 // edge, with a drop shadow and a paper edge, so it breaks the grid.
-function drawPopOut(ctx, panel, rect, W, H) {
+function drawPopOut(ctx, panel, rect, W, H, box) {
   const src = sourceCanvas(panel);
   const geo = coverGeom(src, panel, rect);
   const k = 1.13;
@@ -720,6 +720,11 @@ function drawPopOut(ctx, panel, rect, W, H) {
   const dh = geo.dh * k;
   const frame = { x: cx + (rect.x - cx) * k, y: cy + (rect.y - cy) * k, w: rect.w * k, h: rect.h * k };
   ctx.save();
+  // the break-out spills over gutters, neighbours and the title rule, but
+  // never eats the perforated edge — the tear line stays the card's edge
+  ctx.beginPath();
+  ctx.rect(box.perfW, 0, W - box.perfW, H);
+  ctx.clip();
   ctx.shadowColor = 'rgba(8,2,16,0.55)';
   ctx.shadowBlur = W * 0.022;
   ctx.shadowOffsetY = H * 0.012;
@@ -732,6 +737,9 @@ function drawPopOut(ctx, panel, rect, W, H) {
   ctx.drawImage(src, dx, dy, dw, dh);
   ctx.restore();
   ctx.save();
+  ctx.beginPath();
+  ctx.rect(box.perfW, 0, W - box.perfW, H);
+  ctx.clip();
   ctx.strokeStyle = '#16101f';
   ctx.lineWidth = Math.max(3, W * 0.0030);
   ctx.strokeRect(frame.x, frame.y, frame.w, frame.h);
@@ -770,22 +778,29 @@ function drawStamp(ctx, rightX, topY, w) {
   ctx.strokeStyle = grade.stampInk;
   ctx.strokeRect(-w / 2 + w * 0.055, -h / 2 + w * 0.055, w * 0.89, h - w * 0.11);
   ctx.setLineDash([]);
+  // grade name across the top, so the postmark strike at the stamp's lower
+  // left never lands on it
+  ctx.textAlign = 'center';
+  ctx.fillStyle = grade.stampInk;
+  const nameSize = fitFont(ctx, grade.label.toUpperCase(), 'Anton', w * 0.145, w * 0.86);
+  ctx.font = `${nameSize}px Anton, sans-serif`;
+  ctx.fillText(grade.label.toUpperCase(), 0, -h * 0.28);
   // mini scene: sun over water, in the grade ink
   ctx.save();
   ctx.strokeStyle = grade.stampInk;
   ctx.fillStyle = grade.stampInk;
   ctx.lineWidth = Math.max(1, w * 0.014);
-  ctx.beginPath(); ctx.arc(0, -h * 0.10, w * 0.085, Math.PI, 0); ctx.fill();
+  ctx.beginPath(); ctx.arc(0, h * 0.02, w * 0.085, Math.PI, 0); ctx.fill();
   for (let i = 0; i < 5; i++) {
     const a = Math.PI + (i / 4) * Math.PI;
     ctx.beginPath();
-    ctx.moveTo(Math.cos(a) * w * 0.115, -h * 0.10 + Math.sin(a) * w * 0.115);
-    ctx.lineTo(Math.cos(a) * w * 0.155, -h * 0.10 + Math.sin(a) * w * 0.155);
+    ctx.moveTo(Math.cos(a) * w * 0.115, h * 0.02 + Math.sin(a) * w * 0.115);
+    ctx.lineTo(Math.cos(a) * w * 0.155, h * 0.02 + Math.sin(a) * w * 0.155);
     ctx.stroke();
   }
   for (let r = 0; r < 3; r++) {
     ctx.beginPath();
-    const yy = h * (0.02 + r * 0.055);
+    const yy = h * (0.14 + r * 0.055);
     const ww = w * (0.16 - r * 0.03);
     ctx.moveTo(-ww, yy);
     ctx.quadraticCurveTo(-ww / 2, yy - h * 0.03, 0, yy);
@@ -793,11 +808,6 @@ function drawStamp(ctx, rightX, topY, w) {
     ctx.stroke();
   }
   ctx.restore();
-  ctx.textAlign = 'center';
-  ctx.fillStyle = grade.stampInk;
-  const nameSize = fitFont(ctx, grade.label.toUpperCase(), 'Anton', w * 0.145, w * 0.86);
-  ctx.font = `${nameSize}px Anton, sans-serif`;
-  ctx.fillText(grade.label.toUpperCase(), 0, h * 0.315);
   ctx.fillStyle = '#3a2c22';
   ctx.font = `${Math.round(w * 0.10)}px Anton, sans-serif`;
   ctx.fillText('LEONIDA · ' + grade.denom, 0, h * 0.435);
@@ -1026,8 +1036,15 @@ function applyVignette(ctx, box) {
 }
 
 function drawSelection(ctx, W) {
-  const rect = renderInfo.rects[state.selectedPanel];
+  let rect = renderInfo.rects[state.selectedPanel];
   if (!rect) return;
+  // when the hero is popped out, the marquee follows the broken frame
+  if (state.popOut && state.selectedPanel === 0 && (state.layout === 'hero-left' || state.layout === 'hero-top')) {
+    const k = 1.13;
+    const cx = rect.x + rect.w / 2;
+    const cy = rect.y + rect.h / 2;
+    rect = { x: cx + (rect.x - cx) * k, y: cy + (rect.y - cy) * k, w: rect.w * k, h: rect.h * k };
+  }
   ctx.save();
   ctx.strokeStyle = '#ffffff';
   ctx.lineWidth = Math.max(2, W * 0.0022);
@@ -1072,7 +1089,7 @@ function renderCover(ctx, W, H, forExport) {
   });
   applyVignette(ctx, box);
   if (state.popOut && heroIdx >= 0) {
-    renderInfo.scales[heroIdx] = drawPopOut(ctx, panelAt(heroIdx), rects[heroIdx], W, H);
+    renderInfo.scales[heroIdx] = drawPopOut(ctx, panelAt(heroIdx), rects[heroIdx], W, H, box);
   }
 
   // title band (caption bar)
@@ -1081,9 +1098,9 @@ function renderCover(ctx, W, H, forExport) {
   // postcard dressing: stamp, postmark, cancellation waves
   const stampW = Math.min(W * 0.118, box.w * 0.20);
   const stamp = drawStamp(ctx, box.x + box.w - stampW * 0.06, box.y - H * 0.006, stampW);
-  const pmR = stamp.w * 0.52;
-  const pmCx = stamp.left + stamp.w * 0.14;
-  const pmCy = stamp.top + stamp.h * 0.72;
+  const pmR = stamp.w * 0.50;
+  const pmCx = stamp.left + stamp.w * 0.06;
+  const pmCy = stamp.top + stamp.h * 0.86;
   drawCancellation(ctx, pmCx - pmR * 0.15, stamp.left + stamp.w * 0.94, pmCy, pmR);
   drawPostmark(ctx, pmCx, pmCy, pmR);
 

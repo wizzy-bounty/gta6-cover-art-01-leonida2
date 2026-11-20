@@ -42,7 +42,7 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 14px 22px;
+  padding: 10px 22px;
   border-bottom: 2px solid var(--panel-edge);
   background: rgba(22, 10, 36, 0.82);
   position: sticky;
@@ -97,7 +97,7 @@ body {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 318px;
   gap: 18px;
-  padding: 18px 22px;
+  padding: 13px 22px;
   align-items: start;
 }
 
@@ -140,7 +140,7 @@ body {
   overflow-y: auto;
 }
 
-.group { border-bottom: 1px dashed var(--panel-edge); padding: 9px 0 11px; }
+.group { border-bottom: 1px dashed var(--panel-edge); padding: 8px 0 10px; }
 .group:last-child { border-bottom: none; }
 .group h2 {
   font-family: 'Anton', sans-serif;
@@ -154,8 +154,8 @@ body {
 
 .photo-strip { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
 .photo-strip img {
-  width: 52px;
-  height: 52px;
+  width: 46px;
+  height: 46px;
   object-fit: cover;
   border-radius: 7px;
   border: 2px solid transparent;
