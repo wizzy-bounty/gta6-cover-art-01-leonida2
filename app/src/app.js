@@ -1,7 +1,7 @@
 // LEONIDA GRID — your photos, posted from Leonida.
 // A GTA-style cover-art maker wrapped in a Leonida postcard: drop in up to
 // six photos and they land in a multi-panel comic grid inside a perforated
-// postcard frame, under a grade stamp and a LEONIDA postmark. Four drawn
+// postcard frame, under a grade stamp and a LEONIDA postmark. Six drawn
 // Leonida scenes fill the grid until your own photos replace them, panel by
 // panel. Everything runs locally in the browser; photos never leave the
 // machine.
@@ -54,14 +54,14 @@ const SIZES = [
 
 const TITLE_PRESETS = ['LEONIDA GRID', 'NEON SHORE', 'PALM HOUR', 'NIGHT SHIFT', 'VICE MAIL'];
 
-const SCENE_NAMES = ['Sunset Bay', 'Palm Strip', 'Neon Harbor', 'Causeway at Dusk'];
+const SCENE_NAMES = ['Sunset Bay', 'Palm Strip', 'Neon Harbor', 'Causeway at Dusk', 'Marina Morning', 'Airfield Dusk'];
 
 function gradeOf(id) {
   return GRADES.find((g) => g.id === id) || GRADES[GRADES.length - 1];
 }
 
-// Each panel starts on a drawn demo scene (cycling through the four) with a
-// varied focal framing, so repeated scenes never look like copy-paste.
+// Each panel starts on a drawn demo scene (cycling through the six) with a
+// varied focal framing, so the full Six-Up grid shows six distinct scenes.
 function defaultPanels() {
   const focals = [
     { x: 0.50, y: 1.45, zoom: 1.05 },
@@ -74,7 +74,7 @@ function defaultPanels() {
     { x: 0.48, y: 1.50, zoom: 1.05 },
     { x: 0.58, y: 1.18, zoom: 1.10 },
   ];
-  return focals.map((f, i) => ({ src: { kind: 'demo', scene: i % 4 }, ...f }));
+  return focals.map((f, i) => ({ src: { kind: 'demo', scene: i % 6 }, ...f }));
 }
 
 const state = {
@@ -179,7 +179,7 @@ function sourceCanvas(panel) {
 }
 
 /* ------------------------------------------------- drawn demo scenes ---- */
-/* Four Leonida postcard scenes, painted once at boot with a seeded RNG so
+/* Six Leonida postcard scenes, painted once at boot with a seeded RNG so
    every load — and every screenshot — shows the same pictures. No external
    assets: gradients, silhouettes and light, straight on canvas. */
 
@@ -564,9 +564,248 @@ function sceneCauseway(ctx, w, h) {
   }
 }
 
+function sceneMarinaMorning(ctx, w, h) {
+  const rng = mulberry32(5505);
+  sky(ctx, w, h, [[0, '#b9c9de'], [0.38, '#eed9c4'], [0.56, '#fbe0b4'], [1, '#f7d9a8']]);
+  const horizon = h * 0.58;
+  // low sun + glow, just above the horizon
+  ctx.save();
+  ctx.shadowColor = '#ffe9b0';
+  ctx.shadowBlur = 55;
+  ctx.fillStyle = '#ffedb8';
+  ctx.beginPath(); ctx.arc(w * 0.30, horizon - h * 0.015, w * 0.052, 0, Math.PI * 2); ctx.fill();
+  ctx.restore();
+  // soft dawn clouds
+  ctx.fillStyle = 'rgba(255,244,224,0.55)';
+  for (const [cx, cy, cw] of [[0.62, 0.14, 0.30], [0.20, 0.24, 0.22], [0.84, 0.30, 0.20]]) {
+    ctx.beginPath();
+    ctx.ellipse(w * cx, h * cy, w * cw * 0.5, h * 0.020, 0, 0, Math.PI * 2);
+    ctx.ellipse(w * (cx + 0.04), h * (cy - 0.022), w * cw * 0.30, h * 0.016, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  // distant headland, right
+  ctx.fillStyle = '#8fa3b8';
+  ctx.beginPath();
+  ctx.moveTo(w * 0.68, horizon);
+  ctx.quadraticCurveTo(w * 0.84, horizon - h * 0.075, w, horizon - h * 0.045);
+  ctx.lineTo(w, horizon);
+  ctx.closePath();
+  ctx.fill();
+  // calm water
+  const sea = ctx.createLinearGradient(0, horizon, 0, h);
+  sea.addColorStop(0, '#f2c98d');
+  sea.addColorStop(0.22, '#c9b49a');
+  sea.addColorStop(1, '#5f7d95');
+  ctx.fillStyle = sea;
+  ctx.fillRect(0, horizon, w, h - horizon);
+  // sun path sparkles
+  ctx.fillStyle = 'rgba(255,238,180,0.8)';
+  for (let i = 0; i < 70; i++) {
+    const yy = horizon + rng() * (h - horizon) * 0.9;
+    const spread = 0.015 + ((yy - horizon) / (h - horizon)) * 0.07;
+    const xx = w * 0.30 + (rng() - 0.5) * w * spread * 2;
+    ctx.fillRect(xx, yy, 3 + rng() * 12, 1.8);
+  }
+  ctx.fillStyle = 'rgba(255,255,255,0.35)';
+  for (let i = 0; i < 90; i++) ctx.fillRect(rng() * w, horizon + rng() * (h - horizon), 2 + rng() * 7, 1.2);
+  // moored sailboats: white sails, banded hulls, long calm reflections
+  for (const [boatX, boatS] of [[0.16, 1.0], [0.47, 0.72], [0.60, 0.88], [0.78, 0.60], [0.90, 0.78]]) {
+    const bw = w * 0.11 * boatS;
+    const by = horizon + h * (0.015 + (1 - boatS) * 0.05);
+    const mastTop = by - h * 0.30 * boatS;
+    // reflection: mast and sail smeared straight down the still water
+    ctx.fillStyle = 'rgba(70,90,110,0.35)';
+    ctx.fillRect(w * boatX - 1.2, by + h * 0.02, 2.4, h * 0.26 * boatS);
+    ctx.fillStyle = 'rgba(255,250,238,0.30)';
+    ctx.beginPath();
+    ctx.moveTo(w * boatX + bw * 0.04, by + h * 0.025);
+    ctx.lineTo(w * boatX + bw * 0.30, by + h * 0.02);
+    ctx.lineTo(w * boatX + bw * 0.10, by + h * 0.24 * boatS);
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle = 'rgba(40,55,70,0.40)';
+    ctx.fillRect(w * boatX - bw * 0.30, by + h * 0.018, bw * 0.6, 3);
+    // hull + waterline stripe
+    ctx.fillStyle = '#2c3e50';
+    ctx.beginPath();
+    ctx.moveTo(w * boatX - bw / 2, by);
+    ctx.lineTo(w * boatX + bw / 2, by);
+    ctx.lineTo(w * boatX + bw * 0.32, by + h * 0.038 * boatS);
+    ctx.lineTo(w * boatX - bw * 0.32, by + h * 0.038 * boatS);
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#e0492e';
+    ctx.fillRect(w * boatX - bw / 2, by - 2.5, bw, 2.5);
+    // mast, mainsail and jib
+    ctx.strokeStyle = '#22303e';
+    ctx.lineWidth = Math.max(1.6, 3 * boatS);
+    ctx.beginPath(); ctx.moveTo(w * boatX, by); ctx.lineTo(w * boatX, mastTop); ctx.stroke();
+    ctx.fillStyle = '#fdf6e9';
+    ctx.beginPath();
+    ctx.moveTo(w * boatX + bw * 0.03, mastTop + h * 0.01);
+    ctx.lineTo(w * boatX + bw * 0.03, by - h * 0.012);
+    ctx.lineTo(w * boatX + bw * 0.34, by - h * 0.012);
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#f3e3c2';
+    ctx.beginPath();
+    ctx.moveTo(w * boatX - bw * 0.03, mastTop + h * 0.035);
+    ctx.lineTo(w * boatX - bw * 0.03, by - h * 0.012);
+    ctx.lineTo(w * boatX - bw * 0.26, by - h * 0.012);
+    ctx.closePath(); ctx.fill();
+  }
+  // early birds
+  ctx.strokeStyle = 'rgba(60,70,90,0.65)';
+  ctx.lineWidth = 1.8;
+  for (const [bx2, by2, bs] of [[0.55, 0.18, 8], [0.63, 0.14, 6]]) {
+    ctx.beginPath();
+    ctx.arc(w * bx2 - bs, h * by2, bs, Math.PI * 1.15, Math.PI * 1.85);
+    ctx.arc(w * bx2 + bs, h * by2, bs, Math.PI * 1.15, Math.PI * 1.85);
+    ctx.stroke();
+  }
+}
+
+function sceneAirfieldDusk(ctx, w, h) {
+  const rng = mulberry32(6606);
+  sky(ctx, w, h, [[0, '#04222e'], [0.34, '#0b4653'], [0.50, '#c65a2e'], [0.56, '#f08a3c'], [1, '#f08a3c']]);
+  const horizon = h * 0.56;
+  // first stars in the teal
+  ctx.fillStyle = 'rgba(255,255,255,0.7)';
+  for (let i = 0; i < 60; i++) ctx.fillRect(rng() * w, rng() * horizon * 0.5, rng() < 0.18 ? 2.2 : 1.2, 1.2);
+  // sun half-set on the horizon
+  ctx.save();
+  ctx.shadowColor = '#ff9a3c';
+  ctx.shadowBlur = 50;
+  ctx.fillStyle = '#ffb52e';
+  ctx.beginPath(); ctx.arc(w * 0.72, horizon + h * 0.004, w * 0.045, Math.PI, Math.PI * 2); ctx.fill();
+  ctx.restore();
+  // dark cloud bands
+  ctx.fillStyle = 'rgba(4,26,34,0.60)';
+  for (const [cx, cy, cw] of [[0.25, 0.16, 0.34], [0.66, 0.26, 0.26]]) {
+    ctx.beginPath();
+    ctx.ellipse(w * cx, h * cy, w * cw * 0.5, h * 0.020, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  // ground
+  const ground = ctx.createLinearGradient(0, horizon, 0, h);
+  ground.addColorStop(0, '#7a3c22');
+  ground.addColorStop(0.18, '#33231f');
+  ground.addColorStop(1, '#0a1216');
+  ctx.fillStyle = ground;
+  ctx.fillRect(0, horizon, w, h - horizon);
+  // hangar blocks, left: curved roofs, one lit door with mullions
+  ctx.fillStyle = '#08161c';
+  for (const [hx, hw2, hh] of [[0.02, 0.20, 0.13], [0.235, 0.15, 0.10]]) {
+    const x0 = w * hx, ww = w * hw2, top = horizon - h * hh;
+    ctx.beginPath();
+    ctx.moveTo(x0, horizon + 2);
+    ctx.lineTo(x0, top + h * 0.03);
+    ctx.quadraticCurveTo(x0 + ww / 2, top - h * 0.035, x0 + ww, top + h * 0.03);
+    ctx.lineTo(x0 + ww, horizon + 2);
+    ctx.closePath(); ctx.fill();
+  }
+  ctx.fillStyle = 'rgba(255,181,46,0.85)';
+  ctx.fillRect(w * 0.055, horizon - h * 0.085, w * 0.05, h * 0.085);
+  ctx.fillStyle = 'rgba(8,22,28,0.9)';
+  for (let i = 0; i < 3; i++) ctx.fillRect(w * (0.062 + i * 0.014), horizon - h * 0.085, 2.5, h * 0.085);
+  // control tower, right
+  ctx.fillStyle = '#08161c';
+  ctx.fillRect(w * 0.90, horizon - h * 0.17, w * 0.028, h * 0.17);
+  ctx.fillRect(w * 0.885, horizon - h * 0.205, w * 0.058, h * 0.038);
+  ctx.fillStyle = 'rgba(140,230,255,0.8)';
+  ctx.fillRect(w * 0.889, horizon - h * 0.20, w * 0.05, h * 0.026);
+  // runway in perspective, vanishing near the sun
+  const vx = w * 0.70;
+  ctx.fillStyle = '#0d1512';
+  ctx.beginPath();
+  ctx.moveTo(w * 0.30, h);
+  ctx.lineTo(vx - w * 0.012, horizon + 2);
+  ctx.lineTo(vx + w * 0.012, horizon + 2);
+  ctx.lineTo(w * 1.02, h);
+  ctx.closePath();
+  ctx.fill();
+  // centreline dashes, shrinking to the vanishing point
+  ctx.strokeStyle = 'rgba(255,240,200,0.9)';
+  ctx.lineCap = 'round';
+  for (let i = 0; i < 7; i++) {
+    const t0 = Math.pow(i / 7, 1.6), t1 = Math.pow((i + 0.45) / 7, 1.6);
+    ctx.lineWidth = Math.max(1.2, 5.5 * (1 - t0 * 0.85));
+    ctx.beginPath();
+    ctx.moveTo(w * 0.66 + (vx - w * 0.66) * t0, h + (horizon - h) * t0);
+    ctx.lineTo(w * 0.66 + (vx - w * 0.66) * t1, h + (horizon - h) * t1);
+    ctx.stroke();
+  }
+  // edge lights along both sides
+  for (let i = 0; i < 9; i++) {
+    const t = Math.pow(i / 8, 1.35);
+    const y = h + (horizon - h) * t;
+    const lx = w * 0.30 + (vx - w * 0.012 - w * 0.30) * t;
+    const rx = w * 1.02 + (vx + w * 0.012 - w * 1.02) * t;
+    ctx.save();
+    ctx.shadowColor = '#ffd76e';
+    ctx.shadowBlur = 12 * (1 - t * 0.6);
+    ctx.fillStyle = '#ffe9a8';
+    const r = Math.max(1.4, 4.2 * (1 - t * 0.7));
+    ctx.beginPath(); ctx.arc(lx, y, r, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(rx, y, r, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+  }
+  // small plane silhouette parked on the near runway, nose to the left
+  ctx.save();
+  ctx.fillStyle = '#05090b';
+  const pw = w * 0.30, px = w * 0.40, py = h * 0.86, ph = h * 0.055;
+  ctx.beginPath();
+  ctx.moveTo(px + pw * 0.02, py);
+  ctx.quadraticCurveTo(px - pw * 0.01, py - ph * 0.85, px + pw * 0.10, py - ph * 0.98);
+  ctx.lineTo(px + pw * 0.78, py - ph * 0.88);
+  ctx.lineTo(px + pw * 0.85, py - ph * 1.78);
+  ctx.lineTo(px + pw * 0.925, py - ph * 1.74);
+  ctx.lineTo(px + pw * 0.90, py - ph * 0.82);
+  ctx.lineTo(px + pw, py - ph * 0.52);
+  ctx.lineTo(px + pw * 0.90, py);
+  ctx.closePath(); ctx.fill();
+  // low wing slab + tailplane
+  ctx.beginPath();
+  ctx.moveTo(px + pw * 0.34, py - ph * 0.30);
+  ctx.lineTo(px + pw * 0.58, py - ph * 0.22);
+  ctx.lineTo(px + pw * 0.50, py + ph * 0.30);
+  ctx.lineTo(px + pw * 0.28, py + ph * 0.22);
+  ctx.closePath(); ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(px + pw * 0.86, py - ph * 0.30);
+  ctx.lineTo(px + pw * 1.0, py - ph * 0.26);
+  ctx.lineTo(px + pw * 0.97, py - ph * 0.02);
+  ctx.lineTo(px + pw * 0.87, py - ph * 0.04);
+  ctx.closePath(); ctx.fill();
+  // cockpit glint + spinning prop disc at the nose
+  ctx.fillStyle = 'rgba(150,225,255,0.55)';
+  ctx.beginPath();
+  ctx.moveTo(px + pw * 0.13, py - ph * 0.92);
+  ctx.lineTo(px + pw * 0.30, py - ph * 0.90);
+  ctx.lineTo(px + pw * 0.28, py - ph * 0.55);
+  ctx.lineTo(px + pw * 0.14, py - ph * 0.58);
+  ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = 'rgba(200,220,230,0.45)';
+  ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.ellipse(px + pw * 0.005, py - ph * 0.55, 3.2, ph * 0.78, 0, 0, Math.PI * 2); ctx.stroke();
+  // gear struts + wheels
+  ctx.strokeStyle = '#05090b';
+  ctx.lineWidth = 3.4;
+  ctx.beginPath();
+  ctx.moveTo(px + pw * 0.30, py + ph * 0.1); ctx.lineTo(px + pw * 0.27, py + ph * 0.52);
+  ctx.moveTo(px + pw * 0.55, py + ph * 0.1); ctx.lineTo(px + pw * 0.58, py + ph * 0.52);
+  ctx.stroke();
+  ctx.fillStyle = '#05090b';
+  ctx.beginPath(); ctx.arc(px + pw * 0.27, py + ph * 0.58, ph * 0.17, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(px + pw * 0.58, py + ph * 0.58, ph * 0.17, 0, Math.PI * 2); ctx.fill();
+  // red beacon on the fin
+  ctx.shadowColor = '#ff2244';
+  ctx.shadowBlur = 10;
+  ctx.fillStyle = '#ff3355';
+  ctx.beginPath(); ctx.arc(px + pw * 0.885, py - ph * 1.80, 2.6, 0, Math.PI * 2); ctx.fill();
+  ctx.restore();
+}
+
 const demoScenes = [];
 function buildDemoScenes() {
-  const painters = [sceneSunsetBay, scenePalmStrip, sceneNeonHarbor, sceneCauseway];
+  const painters = [sceneSunsetBay, scenePalmStrip, sceneNeonHarbor, sceneCauseway, sceneMarinaMorning, sceneAirfieldDusk];
   for (const paint of painters) {
     const c = document.createElement('canvas');
     c.width = 960; c.height = 720;
@@ -662,7 +901,7 @@ function panelCount() {
 function panelAt(index) {
   if (!state.panels[index]) {
     const fresh = defaultPanels();
-    state.panels[index] = { ...(fresh[index] || { src: { kind: 'demo', scene: index % 4 }, x: 0.5, y: 1.3, zoom: 1.05 }) };
+    state.panels[index] = { ...(fresh[index] || { src: { kind: 'demo', scene: index % 6 }, x: 0.5, y: 1.3, zoom: 1.05 }) };
   }
   return state.panels[index];
 }
@@ -1276,7 +1515,7 @@ for (const [el, key] of [[els.popoutToggle, 'popOut'], [els.grainToggle, 'grain'
 
 els.demoResetBtn.addEventListener('click', () => {
   const fresh = defaultPanels();
-  state.panels = state.panels.map((p, i) => ({ ...p, src: { ...(fresh[i] ? fresh[i].src : { kind: 'demo', scene: i % 4 }) } }));
+  state.panels = state.panels.map((p, i) => ({ ...p, src: { ...(fresh[i] ? fresh[i].src : { kind: 'demo', scene: i % 6 }) } }));
   pushHistory(true);
   syncPanelControls();
   renderPreview();

@@ -25,10 +25,11 @@ the UI, and it is true: everything is drawn on a local canvas).
 - **6 layouts** — Hero Left (the hero spans a 2×2 block), Hero Top, Twin
   Strip, Quad, Six-Up, and Classic Cover (full-bleed hero under the title
   band), all with thin cream gutters and ink borders between panels.
-- **Drawn demo scenes** — on first load, four Leonida scenes painted in
-  code on a canvas (Sunset Bay, Palm Strip, Neon Harbor, Causeway at Dusk —
-  no external assets) fill the grid, so the cover is complete before you
-  add anything. Uploaded photos replace demo panels one by one; a Reset
+- **Drawn demo scenes** — on first load, six Leonida scenes painted in
+  code on a canvas (Sunset Bay, Palm Strip, Neon Harbor, Causeway at Dusk,
+  Marina Morning, Airfield Dusk — no external assets) fill the grid, so
+  the cover is complete before you add anything and Six-Up shows six
+  distinct scenes. Uploaded photos replace demo panels one by one; a Reset
   button restores the scenes.
 - **Pop-out hero** — a toggle that scales the hero panel's picture past
   its frame edge with a drop shadow and a paper edge, the classic
@@ -73,8 +74,8 @@ to the output directory and writes `dossier.json` with `buildDossier` from
   state: Hero Left grid filled with the drawn demo scenes, pop-out hero
   on, Leonida Legend grade, stamp and postmark in the corner, and the
   full controls panel (photos, layouts, grades, treatments, export).
-- `screenshots/02-sixup.jpg` — the Six-Up layout: all four demo scenes
-  across six panels with varied crops.
+- `screenshots/02-sixup.jpg` — the Six-Up layout: all six demo scenes,
+  one distinct scene per panel.
 - `screenshots/03-classic.jpg` — Classic Cover with the Newsprint title
   treatment and the Gold grade.
 - `screenshots/04-quad.jpg` — the Quad layout with the Neon title
@@ -89,7 +90,7 @@ artwork or fonts. Lettering: Anton & Pacifico (SIL Open Font License, see
 This build evolves the earlier Leonida Postcard entry in place: the
 postcard identity (perforation, stamp, postmark, grades) is kept, but the
 picture side is now the photo-upload multi-panel grid that the top of the
-leaderboard rewards — six grid layouts, a pop-out hero, and four drawn
+leaderboard rewards — six grid layouts, a pop-out hero, and six drawn
 demo scenes standing in until the visitor's own photos replace them. The
 determinism contract is unchanged: `main.ts` produces a byte-identical
 dossier across runs.
