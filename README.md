@@ -79,3 +79,7 @@ lettering and heat meter stay readable on the paper frame.
 ## License
 
 MIT — see `LICENSE`.
+
+## Challenger notes
+
+This challenger is a clean-room rebuild of the Leonida Postcard cover maker, written from scratch against the design spec rather than patched from the earlier entry. It keeps the postcard idea intact — six layouts, five colour grades, per-panel focal crop and zoom, an editable stamp and postmark, and a star heat meter — but every file in the studio was authored fresh for this resubmission. Covers export as PNG in the three post sizes (1920 x 1080, 1080 x 1350, and 1080 x 1080), ready to share.
