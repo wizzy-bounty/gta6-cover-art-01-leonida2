@@ -1,4 +1,4 @@
-# Leonida Postcard — Vice City Cover Studio
+# Leonida Grid — Your Photos, Posted from Leonida
 
 [![gta6-cover-art-01 on make.fun](https://make.fun/badge/gta6-cover-art-01.svg)](https://make.fun/c/gta6-cover-art-01)
 [![rank](https://make.fun/badge/gta6-cover-art-01/wizzy-bounty/gta6-cover-art-01-leonida2/rank.svg)](https://make.fun/c/gta6-cover-art-01)
@@ -6,36 +6,50 @@
 
 An entry for the make.fun **gta6-cover-art-01** bounty ("Make GTA 6 Cover Art").
 
-Everybody else built a neon cover *studio*. This one is a **postcard from
-Leonida**: your holiday photos, panelled like a Vice City souvenir card —
-white postcard frame, a Leonida postage stamp, a circular VICE CITY postmark
-with today's date, a star heat meter, film grain, and a "Greetings from
-Leonida" ribbon under a bold poster title.
+**Leonida Grid** turns your own photos into GTA-style cover art — and mails
+it home as a postcard. Drop in up to six photos and they land in a
+multi-panel comic grid on the picture side of a Leonida postcard:
+perforated left edge, a postage stamp that follows the grade you pick, a
+circular **LEONIDA — MAY 26 2026** postmark with wavy cancellation lines
+across the stamp corner, and a big condensed cover title along the bottom.
 
 ## The app
 
-A static web app under `app/` — no build step, no network requests, photos
-are read on your own machine and never uploaded.
+A static web app under `app/` — no build step, no network requests, and
+photos are read on your own machine and never uploaded (the app says so in
+the UI, and it is true: everything is drawn on a local canvas).
 
-- **6 layouts** — Hero + 3, Full bleed, Nine panel, Tilted snaps (polaroid
-  cards over a sunset gradient), Split day/night (the right panel is always
-  neon-graded), and the signature Postcard frame.
-- **5 colour grades** — Vice Sunset, Neon Night, Palm Gold, Ocean Teal and
-  Mono Noir, each a per-photo gradient-map LUT computed on a canvas.
-- **Any photo, every panel** — upload or drag-and-drop your own photos, put
-  one photo in several panels or a different one in each, then drag inside a
-  panel to reposition, scroll or use the sliders to zoom. Panels start
-  focus-framed so faces land in frame.
-- **Lettering** — editable cover title (Anton) and neon script subtitle
-  (Pacifico), both SIL Open Font License fonts shipped under `app/fonts/`
-  with their license texts in `app/fonts/OFL.txt`. Title presets included:
-  Neon Shore, Night Shift, Pier Pressure, Palm Hour, Vice Mail.
-- **Postcard dressing** — editable stamp headline and postmark place, a
-  0–5 star heat meter, and toggles for film grain, vignette, the halftone
-  title block and the greetings ribbon.
-- **Polish** — live canvas preview, undo/redo (Ctrl+Z / Ctrl+Shift+Z), and
-  one-click PNG export at **1920 x 1080**, **1080 x 1350** and
-  **1080 x 1080**.
+- **Photo grid** — file picker or drag-and-drop for 1–6 photos, drawn into
+  the panels with cover-crop. Click a panel to select it, drag inside it to
+  reposition the photo, scroll or use the sliders to zoom.
+- **6 layouts** — Hero Left (the hero spans a 2×2 block), Hero Top, Twin
+  Strip, Quad, Six-Up, and Classic Cover (full-bleed hero under the title
+  band), all with thin cream gutters and ink borders between panels.
+- **Drawn demo scenes** — on first load, four Leonida scenes painted in
+  code on a canvas (Sunset Bay, Palm Strip, Neon Harbor, Causeway at Dusk —
+  no external assets) fill the grid, so the cover is complete before you
+  add anything. Uploaded photos replace demo panels one by one; a Reset
+  button restores the scenes.
+- **Pop-out hero** — a toggle that scales the hero panel's picture past
+  its frame edge with a drop shadow and a paper edge, the classic
+  frame-break cover move (it spills over gutters and neighbours, never
+  over the perforation).
+- **5 postcard grades** — Bronze, Silver, Gold, Platinum and Leonida
+  Legend. Each grade tints the card's paper and frame, restyles the stamp
+  (ink, denomination, painted sun-over-the-bay art), grades the photos
+  with its own gradient-map ramp, and prints a one-line flavour caption
+  on the card.
+- **3 title treatments** — Classic (ink band, poster title, script
+  subtitle), Neon (glowing dual-tone lettering) and Newsprint (ink on
+  paper, double rules, letterspaced subtitle). The cover title and
+  subtitle are editable, with title presets included.
+- **Postcard identity** — perforated left edge with punched holes and a
+  tear line, corner grade stamp, the fixed-date postmark and its wavy
+  cancellation lines.
+- **Polish** — live canvas preview, undo/redo (Ctrl+Z / Ctrl+Shift+Z),
+  film grain and vignette toggles, and one-click PNG export at
+  **1920 x 1080**, **1080 x 1350** and **1080 x 1080** — the export renders
+  the grid, frame, stamp, postmark and caption exactly as previewed.
 
 ## Run it
 
@@ -55,31 +69,31 @@ to the output directory and writes `dossier.json` with `buildDossier` from
 
 ## Screenshots
 
-- `screenshots/01-cover.jpg` — an exported 1920 x 1080 cover (Hero + 3, Vice Sunset)
-- `screenshots/02-editor.jpg` — the studio in a browser with the sample photos loaded
-- `screenshots/03-portrait.jpg` — an exported 1080 x 1350 cover (Tilted snaps, Neon Night)
-- `screenshots/04-square.jpg` — an exported 1080 x 1080 cover (Postcard frame, Palm Gold)
+- `screenshots/01-grid.jpg` — the studio at 1280 x 800 in its default
+  state: Hero Left grid filled with the drawn demo scenes, pop-out hero
+  on, Leonida Legend grade, stamp and postmark in the corner, and the
+  full controls panel (photos, layouts, grades, treatments, export).
+- `screenshots/02-sixup.jpg` — the Six-Up layout: all four demo scenes
+  across six panels with varied crops.
+- `screenshots/03-classic.jpg` — Classic Cover with the Newsprint title
+  treatment and the Gold grade.
+- `screenshots/04-quad.jpg` — the Quad layout with the Neon title
+  treatment and the Platinum grade.
 
-The sample photos under `app/samples/` were made with an image model for
-make.fun and are free to use. Leonida Postcard is an original fan-made tool;
-it uses no Rockstar Games logo, artwork or fonts.
+Leonida Grid is an original fan-made tool; it uses no Rockstar Games logo,
+artwork or fonts. Lettering: Anton & Pacifico (SIL Open Font License, see
+`app/fonts/OFL.txt`).
 
 ## Challenger notes
 
-This build is a clean-room rebuild of the Leonida Postcard concept for the
-resubmission: the whole studio — shell, editor logic and cover renderer —
-was written fresh in one recorded session against the design spec, with the
-transcript defects of the earlier attempt designed out (every file's final
-content comes from the recorded build itself). Two rendering defects found
-in self-review were fixed before hand-in: the title auto-fit now measures
-with the real display font, so long titles can no longer run under the heat
-stars, and the postcard ribbon is painted beneath the title row so the
-lettering and heat meter stay readable on the paper frame.
+This build evolves the earlier Leonida Postcard entry in place: the
+postcard identity (perforation, stamp, postmark, grades) is kept, but the
+picture side is now the photo-upload multi-panel grid that the top of the
+leaderboard rewards — six grid layouts, a pop-out hero, and four drawn
+demo scenes standing in until the visitor's own photos replace them. The
+determinism contract is unchanged: `main.ts` produces a byte-identical
+dossier across runs.
 
 ## License
 
 MIT — see `LICENSE`.
-
-## Challenger notes
-
-This challenger is a clean-room rebuild of the Leonida Postcard cover maker, written from scratch against the design spec rather than patched from the earlier entry. It keeps the postcard idea intact — six layouts, five colour grades, per-panel focal crop and zoom, an editable stamp and postmark, and a star heat meter — but every file in the studio was authored fresh for this resubmission. Covers export as PNG in the three post sizes (1920 x 1080, 1080 x 1350, and 1080 x 1080), ready to share.
